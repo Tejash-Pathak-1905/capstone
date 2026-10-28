@@ -6,7 +6,11 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "client": "npm --prefix client run dev",
+    "client:build": "npm --prefix client run build",
     "test": "jest --runInBand",
+    "test:client": "npm --prefix client test",
+    "test:all": "jest --runInBand && npm --prefix client test",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage --runInBand",
     "db:migrate": "node src/db/postgres/migrate.js"

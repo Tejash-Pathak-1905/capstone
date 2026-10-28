@@ -13,7 +13,7 @@ async function startServer() {
   // Initialize Socket.io
   const io = new Server(server, {
     cors: {
-      origin: config.clientUrl,
+      origin: ['http://localhost:5173', 'http://localhost:5174', config.clientUrl],
       credentials: true,
     },
   });

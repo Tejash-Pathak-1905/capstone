@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 260 25% 95%; /* #EDE8F5 soft lavender canvas */
+    --foreground: 260 45% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 260 45% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 260 45% 12%;
+
+    --primary: 263 70% 50%; /* #6D28D9 vivid purple */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 260 60% 96%; /* #F5F0FB soft lavender pill */
+    --secondary-foreground: 263 70% 45%;
+
+    --muted: 220 14% 96%; /* #F1F3F5 */
+    --muted-foreground: 240 5% 45%;
+
+    --accent: 263 80% 96%;
+    --accent-foreground: 263 70% 45%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 260 20% 90%;
+    --input: 260 20% 90%;
+    --ring: 263 70% 50%;
+
+    --radius: 1rem;
+  }
+}
+
+body {
+  @apply bg-canvas text-foreground antialiased selection:bg-brand-200 selection:text-brand-900;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Custom scrollbars matching the reference UI */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(109, 40, 217, 0.2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(109, 40, 217, 0.35);
+}
