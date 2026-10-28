@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Send, RotateCcw, X, Smile, Paperclip, MessageCircle } from "lucide-react";
+import { Send, RotateCcw, X, MessageCircle, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface ChatMessage {
@@ -25,6 +25,7 @@ export interface ChatMessagesProps {
   className?: string;
   onSendMessage?: (content: string) => void | Promise<void>;
   onClose?: () => void;
+  onBack?: () => void;
   isExternalTyping?: boolean;
 }
 
@@ -145,6 +146,7 @@ export function ChatMessages({
   className,
   onSendMessage,
   onClose,
+  onBack,
   isExternalTyping = false,
 }: ChatMessagesProps) {
   const [visibleCount, setVisibleCount] = useState(
@@ -283,16 +285,29 @@ export function ChatMessages({
       )}
     >
       {/* Header matching reference: Icon on left, Reload & Close on right */}
-      <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-brand-700 shadow-sm shadow-brand-700/20">
-            <MessageCircle className="h-5 w-5 text-white" />
+      <div className="flex items-center justify-between border-b border-zinc-100 px-4 sm:px-5 py-3.5 sm:py-4">
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          {onBack && (
+            <motion.button
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.92 }}
+              onClick={onBack}
+              title="Back to conversations"
+              aria-label="Back to conversations"
+              className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700 hover:bg-zinc-200 transition"
+            >
+              <ArrowLeft className="size-4" />
+            </motion.button>
+          )}
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-brand-700 shadow-sm shadow-brand-700/20 text-white font-bold text-xs">
+            {peerName ? peerName[0].toUpperCase() : <MessageCircle className="h-5 w-5" />}
           </div>
           <div>
             <h3 className="text-sm font-semibold text-zinc-900 leading-tight">
               {peerName}
             </h3>
-            <p className="text-[11px] font-medium text-emerald-600">
+            <p className="text-[11px] font-medium text-emerald-600 flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               {peerStatus}
             </p>
           </div>
@@ -371,26 +386,6 @@ export function ChatMessages({
           >
             <Send className="size-4" />
           </motion.button>
-        </div>
-
-        {/* Bottom accessories matching reference (Smile, Paperclip) */}
-        <div className="mt-2.5 flex items-center gap-3 px-2 text-zinc-400">
-          <button
-            type="button"
-            className="rounded p-1 hover:text-zinc-700 transition-colors"
-            title="Emoji picker"
-            aria-label="Emoji picker"
-          >
-            <Smile className="size-4" />
-          </button>
-          <button
-            type="button"
-            className="rounded p-1 hover:text-zinc-700 transition-colors"
-            title="Attach file"
-            aria-label="Attach file"
-          >
-            <Paperclip className="size-4" />
-          </button>
         </div>
       </div>
     </div>

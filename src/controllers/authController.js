@@ -9,6 +9,24 @@ const oauth2Client = new OAuth2Client(
   config.google.callbackUrl
 );
 
+function getClientBaseUrl(req) {
+  const forwardedHost = req.headers['x-forwarded-host'];
+  const forwardedProto = req.headers['x-forwarded-proto'] || 'https';
+  if (forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+  return config.clientUrl;
+}
+
+function getGoogleCallbackUrl(req) {
+  const forwardedHost = req.headers['x-forwarded-host'];
+  const forwardedProto = req.headers['x-forwarded-proto'] || 'https';
+  if (forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}/api/auth/google/callback`;
+  }
+  return config.google.callbackUrl;
+}
+
 /**
  * Initiates Google OAuth redirect URL
  */
@@ -18,10 +36,18 @@ function getGoogleAuthUrl(req, res) {
     'https://www.googleapis.com/auth/userinfo.email',
   ];
 
-  const url = oauth2Client.generateAuthUrl({
+  const callbackUrl = getGoogleCallbackUrl(req);
+  const client = new OAuth2Client(
+    config.google.clientId,
+    config.google.clientSecret,
+    callbackUrl
+  );
+
+  const url = client.generateAuthUrl({
     access_type: 'offline',
     prompt: 'consent',
     scope: scopes,
+    redirect_uri: callbackUrl,
   });
 
   if (req.query.format === 'json') {
@@ -44,12 +70,22 @@ async function handleGoogleCallback(req, res, next) {
     });
   }
 
+  const callbackUrl = getGoogleCallbackUrl(req);
+  const client = new OAuth2Client(
+    config.google.clientId,
+    config.google.clientSecret,
+    callbackUrl
+  );
+
   try {
-    const { tokens } = await oauth2Client.getToken(code);
-    oauth2Client.setCredentials(tokens);
+    const { tokens } = await client.getToken({
+      code,
+      redirect_uri: callbackUrl,
+    });
+    client.setCredentials(tokens);
 
     // Verify and decode ID token
-    const ticket = await oauth2Client.verifyIdToken({
+    const ticket = await client.verifyIdToken({
       idToken: tokens.id_token,
       audience: config.google.clientId,
     });
@@ -80,30 +116,27 @@ async function handleGoogleCallback(req, res, next) {
     const token = generateToken(user);
     setAuthCookie(res, token);
 
-    // Redirect to frontend based on onboarding status
-    const targetPath = user.new_user ? '/onboarding' : '/profile';
-    return res.redirect(`${config.clientUrl}${targetPath}`);
+    // Redirect to frontend platform upon successful login
+    const clientBase = getClientBaseUrl(req);
+    const targetPath = user.new_user ? '/?onboarding=true' : '/';
+    return res.redirect(`${clientBase}${targetPath}`);
   } catch (error) {
     console.error('Google OAuth callback error:', error);
-    return res.redirect(`${config.clientUrl}/login?error=oauth_failed`);
+    const clientBase = getClientBaseUrl(req);
+    return res.redirect(`${clientBase}/login?error=oauth_failed`);
   }
 }
 
 /**
- * Direct ID token exchange for Single Page Application clients or mock testing
+ * Direct ID token or code exchange for Google OAuth verification
  */
 async function exchangeGoogleToken(req, res, next) {
-  const { idToken, code, mockUser } = req.body;
+  const { idToken, code } = req.body;
 
   try {
     let googleId, email, name;
 
-    // Support mock authentication for local development or testing when Google credentials are mock
-    if (config.env !== 'production' && mockUser) {
-      googleId = mockUser.googleId || `mock_google_${Date.now()}`;
-      email = (mockUser.email || `mock_${Date.now()}@example.com`).toLowerCase();
-      name = mockUser.name || 'Mock User';
-    } else if (idToken) {
+    if (idToken) {
       const ticket = await oauth2Client.verifyIdToken({
         idToken,
         audience: config.google.clientId,
@@ -125,7 +158,7 @@ async function exchangeGoogleToken(req, res, next) {
     } else {
       return res.status(400).json({
         success: false,
-        error: 'Either idToken, authorization code, or mockUser must be provided',
+        error: 'Either idToken or authorization code must be provided',
       });
     }
 

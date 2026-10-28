@@ -44,6 +44,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
     socketInstance.on("connect", () => {
       setIsConnected(true);
+      socketInstance.emit("join_user");
     });
 
     socketInstance.on("disconnect", () => {

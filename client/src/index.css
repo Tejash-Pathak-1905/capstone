@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 260 25% 95%; /* #EDE8F5 soft lavender canvas */
+    --background: 260 25% 95%; /* Soft lavender canvas */
     --foreground: 260 45% 12%;
 
     --card: 0 0% 100%;
@@ -19,7 +19,7 @@
     --secondary: 260 60% 96%; /* #F5F0FB soft lavender pill */
     --secondary-foreground: 263 70% 45%;
 
-    --muted: 220 14% 96%; /* #F1F3F5 */
+    --muted: 220 14% 96%;
     --muted-foreground: 240 5% 45%;
 
     --accent: 263 80% 96%;
@@ -37,11 +37,31 @@
 }
 
 body {
-  @apply bg-canvas text-foreground antialiased selection:bg-brand-200 selection:text-brand-900;
-  font-feature-settings: "rlig" 1, "calt" 1;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  color: #18181b;
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+  letter-spacing: -0.012em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbars matching the reference UI */
+/* Bespoke Display Typography for Headings */
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: "Outfit", -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: -0.028em;
+  font-feature-settings: "salt" 1, "ss01" 1;
+}
+
+/* Clean Editorial Monospace for User Handles, IDs, and Metrics */
+.font-mono, code, pre, .user-handle {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-feature-settings: "zero" 1;
+}
+
+/* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

@@ -22,7 +22,6 @@ interface AuthContextType {
   refreshUser: () => Promise<void>;
   completeUserProfile: (data: { name: string; username: string; bio?: string }) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
-  setDemoUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -71,12 +70,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setUser(null);
       setToken(null);
+      if (typeof window !== "undefined") {
+        window.history.pushState(null, "", "/login");
+      }
     }
-  };
-
-  const setDemoUser = (demoUser: User) => {
-    setUser(demoUser);
-    setIsLoading(false);
   };
 
   return (
@@ -89,7 +86,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         refreshUser,
         completeUserProfile,
         logout,
-        setDemoUser,
       }}
     >
       {children}

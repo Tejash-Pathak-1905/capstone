@@ -43,6 +43,13 @@ function initializeSocketHandlers(io) {
   io.on('connection', (socket) => {
     console.log(`[Socket] User connected: ${socket.user.id} (Socket: ${socket.id})`);
 
+    // Event: Join user's personal notification room
+    socket.on('join_user', () => {
+      if (socket.user && socket.user.id) {
+        socket.join(String(socket.user.id));
+      }
+    });
+
     // Event: Join a specific 1-on-1 conversation room
     socket.on('join_room', async ({ conversationId }, callback) => {
       try {
@@ -148,6 +155,11 @@ function initializeSocketHandlers(io) {
 
         // Broadcast to all sockets in the conversation room
         io.to(String(conversationId)).emit('receive_message', messagePayload);
+
+        // Also notify recipient's personal user room for instant cross-tab notification & unread badges
+        if (targetRecipientId) {
+          io.to(String(targetRecipientId)).emit('receive_message', messagePayload);
+        }
 
         if (callback) callback({ success: true, message: messagePayload });
       } catch (error) {
